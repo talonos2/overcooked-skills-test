@@ -62,6 +62,7 @@ public class ChefInputManager : MonoBehaviour
                 Interactable interactableThing = c.gameObject.GetComponent<Interactable>();
                 if (interactableThing)
                 {
+                    Debug.Log("Found thing! " + c.gameObject);
                     Vector3 delta = interactableThing.transform.position - this.transform.position;
                     float angleOff = Vector3.Angle(this.transform.forward, delta);
                     if (angleOff<90&&angleOff< minAngleOff) //only 90 degree angle of interaction;

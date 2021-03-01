@@ -8,7 +8,7 @@ public class Carriable : Interactable
     private Collider collider;
 
     // Start is called before the first frame update
-    void Start()
+    protected void Start()
     {
         this.collider = this.GetComponent<Collider>();
     }
