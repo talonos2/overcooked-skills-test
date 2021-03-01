@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,12 +12,17 @@ public class ChefInputManager : MonoBehaviour
     public KeyCode right;
     public KeyCode interact;
 
+    public Transform leftHand;
+    public Transform rightHand;
+
     [SerializeField]
     private float speed;
     [SerializeField]
     private float maxAxisInput;
     [SerializeField]
     private float inputLerpSpeed;
+    [SerializeField]
+    private float interactableDistance = 1.5f;
 
     private CharacterController characterController;
     private Camera mainCamera;
@@ -24,6 +30,9 @@ public class ChefInputManager : MonoBehaviour
 
     private float upness;
     private float rightness;
+
+    private List<Carriable> carried = new List<Carriable>();
+
     // Start is called before the first frame update
 
     void Start()
@@ -35,6 +44,82 @@ public class ChefInputManager : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {
+        HandleMovement();
+        HandleInteraction();
+    }
+
+    private void HandleInteraction()
+    {
+        if (Input.GetKeyDown(interact))
+        {
+            float minAngleOff = Mathf.Infinity;
+            Interactable thingToInteractWith = null;
+
+            Collider[] nearby = Physics.OverlapSphere(this.transform.position,interactableDistance);
+            foreach (Collider c in nearby)
+            {
+                Interactable interactableThing = c.gameObject.GetComponent<Interactable>();
+                if (interactableThing)
+                {
+                    Vector3 delta = interactableThing.transform.position - this.transform.position;
+                    float angleOff = Vector3.Angle(this.transform.forward, delta);
+                    if (angleOff<90&&angleOff< minAngleOff) //only 90 degree angle of interaction;
+                    {
+                        minAngleOff = angleOff;
+                        thingToInteractWith = interactableThing;
+                    }
+                }
+            }
+
+            if (thingToInteractWith) //There was at least one thing in a 90 degree angle in front of us.
+            {
+                if (thingToInteractWith is Carriable&&carried.Count < 2)
+                {
+                    PickUp((Carriable)thingToInteractWith);
+                }
+                if (thingToInteractWith is PlaceableArea && carried.Count > 0 && ((PlaceableArea)thingToInteractWith).CanAccept(carried[0]))
+                {
+                    
+                    ReorderHands();
+                    ((PlaceableArea)thingToInteractWith).Recieve(Drop());
+                }
+            }
+        }
+    }
+
+    private Carriable Drop()
+    {
+        Carriable thingDropped = carried[0];
+        carried.RemoveAt(0);
+        thingDropped.transform.parent = null;
+        thingDropped.SetColliderEnabled(true);
+        return thingDropped;
+    }
+
+    private void ReorderHands()
+    {
+        if (carried.Count>0)
+        {
+            carried[0].transform.parent = leftHand;
+            carried[0].transform.localPosition = Vector3.zero;
+        }
+        if (carried.Count > 1)
+        {
+            carried[1].transform.parent = rightHand;
+            carried[1].transform.localPosition = Vector3.zero;
+        }
+    }
+
+    private void PickUp(Carriable thingToPickUp)
+    {
+        Debug.Log("Picking up!");
+        carried.Add(thingToPickUp);
+        thingToPickUp.SetColliderEnabled(false);
+        ReorderHands();
+    }
+
+    private void HandleMovement()
     {
         //With more time, I'd put together something where instead of "up" taking precedence, whichever key
         //the player pressed most recently would have precidence.
@@ -64,7 +149,7 @@ public class ChefInputManager : MonoBehaviour
             rightness = Mathf.Lerp(rightness, 0, inputLerpSpeed);
         }
 
-        if (Mathf.Abs(rightness)<.1f&& Mathf.Abs(upness) <.1f)
+        if (Mathf.Abs(rightness) < .1f && Mathf.Abs(upness) < .1f)
         {
             animator.SetBool("IsMoving", false);
             animator.SetFloat("MoveSpeed", 1);
@@ -80,8 +165,6 @@ public class ChefInputManager : MonoBehaviour
         Vector3 playerCoords = this.transform.position;
         Physics.Raycast(mainCamera.ScreenPointToRay(mainCamera.WorldToScreenPoint(playerCoords) + new Vector3(0, -100f, 0)), out RaycastHit hit, 100f);
 
-        Debug.Log(hit.point+", "+playerCoords);
-
         Vector3 upFromPlayer = playerCoords - hit.point;
         toMove += upFromPlayer.normalized * upness;
 
@@ -94,7 +177,7 @@ public class ChefInputManager : MonoBehaviour
             toMove.Normalize();
         }
 
-        float angle = Mathf.Rad2Deg*Mathf.Atan2(toMove.x, toMove.z);
+        float angle = Mathf.Rad2Deg * Mathf.Atan2(toMove.x, toMove.z);
         this.transform.rotation = Quaternion.Euler(0, angle, 0);
 
         animator.SetBool("IsMoving", true);
