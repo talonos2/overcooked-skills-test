@@ -106,6 +106,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 400002}
+  - component: {fileID: 5409948186083540373}
+  - component: {fileID: 5040927549076092702}
   m_Layer: 0
   m_Name: CuttingBoard
   m_TagString: Untagged
@@ -128,3 +130,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &5409948186083540373
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100002}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &5040927549076092702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 683ff9fbaf6eb3743897a37db3e0c53a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prototypeSalad: {fileID: 7540971042974928094, guid: 049aa2c4108bd3a4a8d84aae949e3573,
+    type: 3}
+  timeItTakesToChopAThing: 3

@@ -30,5 +30,12 @@ public class Ingredient : Carriable
 [System.Serializable]
 public class IngredientData
 {
+
     public Color color;
+
+    public override bool Equals(object obj)
+    {
+        IngredientData data = obj as IngredientData;
+        return data != null && color.Equals(data.color);
+    }
 }

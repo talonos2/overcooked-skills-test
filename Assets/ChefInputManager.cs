@@ -32,6 +32,7 @@ public class ChefInputManager : MonoBehaviour
     private float rightness;
 
     private List<Carriable> carried = new List<Carriable>();
+    private bool isChopping;
 
     // Start is called before the first frame update
 
@@ -49,6 +50,18 @@ public class ChefInputManager : MonoBehaviour
         HandleInteraction();
     }
 
+    internal void ReleaseChop()
+    {
+        isChopping = false;
+        animator.SetBool("IsChopping", false);
+    }
+
+    internal void ForceChop()
+    {
+        isChopping = true;
+        animator.SetBool("IsChopping", true);
+    }
+
     private void HandleInteraction()
     {
         if (Input.GetKeyDown(interact))
@@ -62,28 +75,31 @@ public class ChefInputManager : MonoBehaviour
                 Interactable interactableThing = c.gameObject.GetComponent<Interactable>();
                 if (interactableThing)
                 {
-                    Debug.Log("Found thing! " + c.gameObject);
                     Vector3 delta = interactableThing.transform.position - this.transform.position;
                     float angleOff = Vector3.Angle(this.transform.forward, delta);
-                    if (angleOff<90&&angleOff< minAngleOff) //only 90 degree angle of interaction;
+                    if (angleOff<30&&angleOff< minAngleOff) //Players only have a 60 degree angle of interaction
                     {
-                        minAngleOff = angleOff;
-                        thingToInteractWith = interactableThing;
+                        //It's in our field of view. Should e consider it?
+                        if ((interactableThing is Carriable && carried.Count < 2) ||
+                            (interactableThing is PlaceableArea && carried.Count > 0 && ((PlaceableArea)interactableThing).CanAccept(carried[0])))
+                        {
+                            minAngleOff = angleOff;
+                            thingToInteractWith = interactableThing;
+                        }
                     }
                 }
             }
 
             if (thingToInteractWith) //There was at least one thing in a 90 degree angle in front of us.
             {
-                if (thingToInteractWith is Carriable&&carried.Count < 2)
+                if(thingToInteractWith is Carriable)
                 {
                     PickUp((Carriable)thingToInteractWith);
                 }
-                if (thingToInteractWith is PlaceableArea && carried.Count > 0 && ((PlaceableArea)thingToInteractWith).CanAccept(carried[0]))
-                {
-                    
+                else if (thingToInteractWith is PlaceableArea)
+                {                    
+                    ((PlaceableArea)thingToInteractWith).Recieve(Drop(), this);
                     ReorderHands();
-                    ((PlaceableArea)thingToInteractWith).Recieve(Drop());
                 }
             }
         }
@@ -105,7 +121,7 @@ public class ChefInputManager : MonoBehaviour
             carried[0].transform.parent = leftHand;
             carried[0].transform.localPosition = Vector3.zero;
         }
-        if (carried.Count > 1)
+        else if (carried.Count > 1)
         {
             carried[1].transform.parent = rightHand;
             carried[1].transform.localPosition = Vector3.zero;
@@ -114,7 +130,6 @@ public class ChefInputManager : MonoBehaviour
 
     private void PickUp(Carriable thingToPickUp)
     {
-        Debug.Log("Picking up!");
         carried.Add(thingToPickUp);
         thingToPickUp.SetColliderEnabled(false);
         ReorderHands();
@@ -122,6 +137,10 @@ public class ChefInputManager : MonoBehaviour
 
     private void HandleMovement()
     {
+        if (isChopping)
+        {
+            return;
+        }
         //With more time, I'd put together something where instead of "up" taking precedence, whichever key
         //the player pressed most recently would have precidence.
         if (Input.GetKey(up))

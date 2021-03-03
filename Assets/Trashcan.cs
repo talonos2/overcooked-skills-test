@@ -9,7 +9,7 @@ public class Trashcan : PlaceableArea
         return true;
     }
 
-    public override void Recieve(Carriable carriable)
+    public override void Recieve(Carriable carriable, ChefInputManager chef)
     {
         carriable.gameObject.AddComponent<SinkIntoTrashcanAndDie>();
         carriable.transform.position = this.transform.position + Vector3.up;

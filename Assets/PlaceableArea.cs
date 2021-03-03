@@ -18,5 +18,5 @@ public abstract class PlaceableArea : Interactable
 
     public abstract bool CanAccept(Carriable carriable);
 
-    public abstract void Recieve(Carriable carriable);
+    public abstract void Recieve(Carriable carriable, ChefInputManager chef);
 }

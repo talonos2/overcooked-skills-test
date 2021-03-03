@@ -12,7 +12,7 @@ public class Countertop : PlaceableArea
         return (containedObject == null);
     }
 
-    public override void Recieve(Carriable carriable)
+    public override void Recieve(Carriable carriable, ChefInputManager chef)
     {
         this.containedObject = carriable;
         carriable.transform.position = this.transform.position + Vector3.up * 1.15f;
