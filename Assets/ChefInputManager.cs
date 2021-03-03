@@ -50,6 +50,11 @@ public class ChefInputManager : MonoBehaviour
         HandleInteraction();
     }
 
+    internal int GetNumberOfItemsCarried()
+    {
+        return carried.Count;
+    }
+
     internal void ReleaseChop()
     {
         isChopping = false;
@@ -76,11 +81,13 @@ public class ChefInputManager : MonoBehaviour
                 if (interactableThing)
                 {
                     Vector3 delta = interactableThing.transform.position - this.transform.position;
+                    delta.y = 0;
                     float angleOff = Vector3.Angle(this.transform.forward, delta);
+                    //Debug.Log("Interactable in radius: " + c.gameObject);
                     if (angleOff<30&&angleOff< minAngleOff) //Players only have a 60 degree angle of interaction
                     {
-                        //It's in our field of view. Should e consider it?
-                        if ((interactableThing is Carriable && carried.Count < 2) ||
+                        //It's in our field of view. Should we consider it?
+                        if ((interactableThing is Carriable && ((Carriable)interactableThing).CanBePickedUpBy(this)) ||
                             (interactableThing is PlaceableArea && carried.Count > 0 && ((PlaceableArea)interactableThing).CanAccept(carried[0])))
                         {
                             minAngleOff = angleOff;

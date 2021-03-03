@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Carriable : Interactable
+public abstract class Carriable : Interactable
 {
     private Collider collider;
 
@@ -23,4 +23,6 @@ public class Carriable : Interactable
     {
         this.collider.enabled = v;
     }
+
+    public abstract bool CanBePickedUpBy(ChefInputManager chef);
 }

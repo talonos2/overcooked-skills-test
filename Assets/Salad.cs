@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,6 +33,7 @@ public class Salad : Carriable
     {
         this.renderer = this.GetComponent<MeshRenderer>();
         this.renderer.material = new Material(this.renderer.material);
+        base.Start();
     }
 
     public void AddIngredient(IngredientData newIngredient)
@@ -50,5 +52,27 @@ public class Salad : Carriable
         this.renderer.material.color = new Color(r / ingredients.Count, g / ingredients.Count, b / ingredients.Count);
         float size = Mathf.Pow(ingredients.Count, 1f / 3f);
         this.transform.localScale = new Vector3(size * sizeScalar.x, size*sizeScalar.y, size * sizeScalar.z);
+    }
+
+    public override bool Equals(object obj)
+    {
+        Salad s = obj as Salad;
+        if (!s)
+        {
+            return false;
+        }
+        Color a = this.renderer.material.color;
+        Color b = s.renderer.material.color;
+        return a.r == b.r && a.g == b.g && a.b == b.b;
+    }
+
+    internal Color GetSaladColor()
+    {
+        return renderer.material.color;
+    }
+
+    public override bool CanBePickedUpBy(ChefInputManager chef)
+    {
+        return chef.GetNumberOfItemsCarried() < 1;
     }
 }

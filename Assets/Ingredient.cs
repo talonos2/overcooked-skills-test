@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using System;
 
 public class Ingredient : Carriable
 {
@@ -25,6 +27,11 @@ public class Ingredient : Carriable
         this.renderer = this.GetComponent<Renderer>();
         this.renderer.material = new Material(this.renderer.material);
     }
+
+    public override bool CanBePickedUpBy(ChefInputManager chef)
+    {
+        return chef.GetNumberOfItemsCarried() < 2;
+    }
 }
 
 [System.Serializable]
@@ -36,6 +43,6 @@ public class IngredientData
     public override bool Equals(object obj)
     {
         IngredientData data = obj as IngredientData;
-        return data != null && color.Equals(data.color);
+        return data != null && color.r == data.color.r && color.g == data.color.g && color.b == data.color.b;
     }
 }
